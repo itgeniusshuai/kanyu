@@ -5,6 +5,8 @@ type Gua struct{
 	Yao1 Yao
 	Yao2 Yao
 	Yao3 Yao
+
+	Name string
 }
 
 type ChongGua struct{

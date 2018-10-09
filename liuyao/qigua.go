@@ -2,11 +2,22 @@ package liuyao
 
 import (
 	"../date"
-	"github.com/andlabs/ui"
 )
 
-var bagua = []string{"乾","坎","艮","震","巽","离","坤","兑"}
-
+var bagua = []string{"乾","兑","离","震","巽","坎","艮","坤"}
+var chongGua = [][]string{	{"乾为天","天泽履","天火同人","天雷无妄","天风姤","天水讼","天山遁","天地否"},
+							{"泽天夬","兑为泽","泽火革","泽雷随","泽风大过","泽水困","泽山咸","泽地萃"},
+							{"火天大有","火泽睽","离为火","火雷噬嗑","火风井","火水未既","火山旅","火地晋"},
+							{"雷天大壮","雷泽归妹","离","震","巽","坎","艮","坤"},
+							{"乾","兑","离","震","巽","坎","艮","坤"},
+							{"乾","兑","离","震","巽","坎","艮","坤"},
+							{"乾","兑","离","震","巽","坎","艮","坤"},
+							{"乾","兑","离","震","巽","坎","艮","坤"}}
+// 取挂
+// 取动
+// 取卦支
+// 取六亲
+// 取世应
 func QiGuaByTime() *FinalGua{
 
 	l := date.GetLunar()
@@ -20,28 +31,31 @@ func QiGuaByTime() *FinalGua{
 	var upNum = y + m + d
 	var downNum = y + m + d + h
 
-	return GetChongGua(upNum,downNum)
+	return GetFinalGua(upNum,downNum)
 }
 
-func GetChongGua(upNum, downNum int) *FinalGua{
+func GetChongGua(upNum, downNum int) *ChongGua{
+	cGua := ChongGua{}
 	upGuaNum := GetGuaByNum(upNum)
 	downGuaNum := GetGuaByNum(downNum)
 	// 获取上挂
 	upGua := GetDanGuaByGuaNum(upGuaNum)
 	downGua := GetDanGuaByGuaNum(downGuaNum)
+	cGua.UpGua = *upGua
+	cGua.DownGua = *downGua
 	// 获取下挂
-	return GetFinalGua(*upGua,*downGua)
+	return &cGua
 }
 
-func GetFinalGua(upGua,downGua Gua) *FinalGua{
+func GetFinalGua(upNum,downNum int) *FinalGua{
 	f := FinalGua{}
-
+	chongGua := GetChongGua(upNum,downNum)
+	f.ZhuGua = *chongGua
 	return &f
 }
 
 func GetDanGuaByGuaNum(guaNum int) *Gua{
-	gua := Gua{}
-
+	gua := Gua{Name:bagua[GetGuaByNum(guaNum)]}
 	return &gua
 }
 
@@ -59,3 +73,4 @@ func GetDongYaoNum(num int) int{
 	}
 	return num
 }
+
