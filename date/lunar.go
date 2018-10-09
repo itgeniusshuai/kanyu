@@ -30,6 +30,9 @@ type Lunar struct {
 	description     string;
 	isHoliday       bool;
 
+	lunlarHour int;
+
+
 }
 
 var lunarInfo = []int{
@@ -823,6 +826,16 @@ var lunarInfo = []int{
         }  
         return c1 + c2;  
     }
+
+    // 时辰
+    func (this *Lunar)GetLunlarHour()int{
+    	return this.solar.Hour()/2 +1;
+	}
+
+	// 时辰字符串
+	func (this *Lunar)GetLunlarHourString()string{
+		return Deqi[this.GetLunlarHour()-1]
+	}
 
 
     func GetLunar() Lunar{
