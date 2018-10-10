@@ -4,8 +4,8 @@ import (
 	"../date"
 )
 
-var bagua = []string{"乾","兑","离","震","巽","坎","艮","坤"}
-var chongGua = [][]string{	{"乾为天","天泽履","天火同人","天雷无妄","天风姤","天水讼","天山遁","天地否"},
+var baguaNames = []string{"乾","兑","离","震","巽","坎","艮","坤"}
+var chongGuaNames = [][]string{	{"乾为天","天泽履","天火同人","天雷无妄","天风姤","天水讼","天山遁","天地否"},
 							{"泽天夬","兑为泽","泽火革","泽雷随","泽风大过","泽水困","泽山咸","泽地萃"},
 							{"火天大有","火泽睽","离为火","火雷噬嗑","火风鼎","火水未既","火山旅","火地晋"},
 							{"雷天大壮","雷泽归妹","雷火丰","震","雷风恒","雷水解","雷山小过","雷地豫"},
@@ -13,6 +13,15 @@ var chongGua = [][]string{	{"乾为天","天泽履","天火同人","天雷无妄
 							{"水天需","水泽节","水火既济","水雷屯","水风井","坎为水","水山蹇","水地比"},
 							{"山天大畜","山泽损","山火贲","山雷颐","山风蛊","山水蒙","艮为山","山地剥"},
 							{"地天泰","地泽临","地火明夷","地雷覆","地风升","地水师","地山谦","坤为地"}}
+// 金0水1木2火3土4
+var wuxingSheng = []string{"金","水","木","火","土"}
+var wuxingKe = []string{"木","火","土","金","水"}
+var guaWuxing = []int{0,0,3,2,2,1,4,4}
+/**
+	卦信息，卦五行3位，世3位，应3位，顺逆1位，初支地支4位
+
+ */
+var chongGuaDesc = [][]int{{},{},{},{},{},{},{},{}}
 // 取挂
 // 取动
 // 取卦支
@@ -35,7 +44,7 @@ func QiGuaByTime() *FinalGua{
 }
 
 func GetChongGua(upNum, downNum int) *ChongGua{
-	cGua := ChongGua{}
+	cGua := ChongGua{Name:chongGuaNames[upNum-1][downNum-1]}
 	upGuaNum := GetGuaByNum(upNum)
 	downGuaNum := GetGuaByNum(downNum)
 	// 获取上挂
@@ -55,7 +64,7 @@ func GetFinalGua(upNum,downNum int) *FinalGua{
 }
 
 func GetDanGuaByGuaNum(guaNum int) *Gua{
-	gua := Gua{Name:bagua[GetGuaByNum(guaNum)]}
+	gua := Gua{Name:baguaNames[GetGuaByNum(guaNum)]}
 	return &gua
 }
 

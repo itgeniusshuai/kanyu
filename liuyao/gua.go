@@ -12,6 +12,7 @@ type Gua struct{
 type ChongGua struct{
 	UpGua Gua
 	DownGua Gua
+	Name string
 }
 
 type FinalGua struct{
