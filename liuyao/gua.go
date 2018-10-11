@@ -2,7 +2,7 @@ package liuyao
 
 
 type Gua struct{
-	Yaos []Yao
+	Yaos []*Yao
 
 	Name string
 	GuaNum int

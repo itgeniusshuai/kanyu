@@ -57,6 +57,7 @@ const(
 )
 
 var Dizhis []string = []string{"子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"}
+var DizhiWuxings []int = []int{1,4,2,2,4,3,3,4,0,0,4,1}
 var TianGans []string = []string{"甲","乙","丙","丁","戊","己","庚","辛","壬","癸"}
 var LiuQins []string = []string{"兄弟","子孙","妻财","官鬼","父母"}
 var BaguaNames = []string{"乾","兑","离","震","巽","坎","艮","坤"}
@@ -134,6 +135,15 @@ func ParseChongGuaDesc(gua ChongGua) *ChongGua{
 			gua.DownGua.Yaos[2-(e-1)].IsDong = true
 		}
 	}
+	// 解析六亲
+	for _,yao := range upGua.Yaos{
+		_,liuQinName := ParseLiuQin(yao.DiZhi,wuxing)
+		yao.LiuQinName = liuQinName
+	}
+	for _,yao := range downGua.Yaos{
+		_,liuQinName := ParseLiuQin(yao.DiZhi,wuxing)
+		yao.LiuQinName = liuQinName
+	}
 	return &gua
 }
 
@@ -150,7 +160,7 @@ func ParseDanGuaDesc(isUp bool,guaNum int) *Gua{
 	var yaoxiang = desc>>4 & 0x7
 	var isShun = desc>>7 & 0x1
 	var i uint
-	var yaos []Yao = make([]Yao,3)
+	var yaos []*Yao = make([]*Yao,3)
 	for i = 0; i < 3; i++{
 		yao := Yao{DiZhi:dizhi,DizhiName:Dizhis[dizhi]}
 		if (yaoxiang>>i & 0x1) == 0 {
@@ -172,7 +182,7 @@ func ParseDanGuaDesc(isUp bool,guaNum int) *Gua{
 				dizhi += 12
 			}
 		}
-		yaos[2-i] = yao
+		yaos[2-i] = &yao
 	}
 	gua.Yaos = yaos
 	return &gua
@@ -207,7 +217,7 @@ func (this *Yao)String()string{
 	}
 	buf.WriteByte('\t')
 	buf.WriteString("\t"+this.LiuQinName)
-	buf.WriteString("\t"+this.DizhiName)
+	buf.WriteString(this.DizhiName+WuxingSheng[DizhiWuxings[this.DiZhi]])
 	if this.IsShi {
 		buf.WriteString("\t世")
 	}
@@ -222,4 +232,13 @@ func (this *ChongGua)String()string{
 	return this.Name +"\n"+this.UpGua.String()+this.DownGua.String()
 }
 
+
+func ParseLiuQin(dizhiNum int, baseWuxingNum int) (int,string){
+	var dizhiWuxing = DizhiWuxings[dizhiNum]
+	var chazhi = dizhiWuxing - baseWuxingNum
+	if chazhi < 0 {
+		chazhi = -chazhi
+	}
+	return chazhi,LiuQins[chazhi]
+}
 
