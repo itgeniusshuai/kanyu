@@ -73,8 +73,8 @@ var WuxingSheng = []string{"金","水","木","火","土"}
 var WuxingKe = []string{"木","火","土","金","水"}
 var GuaWuxing = []int{0,0,3,2,2,1,4,4}
 /**
-	卦信息，卦五行3位，应3位，世3位，顺逆1位，
-	如乾卦，五行为金0，世位置1爻，应4爻，阳顺1 最后值为 000 100 001 1 = ox0043
+	卦信息，卦五行4位，应4位，世4位，
+	如乾卦，五行为金0，世位置1爻，应4爻，阳顺1 最后值为 0000 0100 0001  = ox0041
  */
 var ChongGuaDesc = [][]int{{0x0043},{},{},{},{},{},{},{}}
 /**
@@ -93,7 +93,7 @@ var DanDownGuaDesc = []int{0xf0,0x35,0x53,0x90,0x61,0xa2,0xc4,0x07}
 
 /**
 	卦信息，卦五行3位，应3位，世3位，顺逆1位，
-	如乾卦，五行为金0，世位置1爻，应4爻，阳顺1 最后值为 000 100 001 1 = ox0043
+	如乾卦，五行为金0，应位置4爻，世4爻， 最后值为 0000 0100 0001 = ox0041
  */
 func ParseChongGuaDesc(gua ChongGua) *ChongGua{
 	upGua := gua.UpGua
@@ -101,11 +101,11 @@ func ParseChongGuaDesc(gua ChongGua) *ChongGua{
 
 	var desc = ChongGuaDesc[upGua.GuaNum-1][downGua.GuaNum-1]
 	// 解析世位置
-	var shiPos = desc>>1 & 0x07
+	var shiPos = desc & 0x0f
 	// 解析应位置
-	var yingPos = desc>>4 & 0x7
+	var yingPos = desc>>4 & 0xf
 	// 解析五行属性
-	var wuxing = desc>>7 & 0x7
+	var wuxing = desc>>8 & 0xf
 	if shiPos > 3{
 		upGua.Yaos[shiPos-4].IsShi = true
 	}else{
