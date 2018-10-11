@@ -1,8 +1,7 @@
 package liuyao
 
 import (
-	"fmt"
-	"github.com/itgeniusshuai/go_common/common"
+	"bytes"
 )
 
 const(
@@ -96,45 +95,114 @@ var DanDownGuaDesc = []int{0xf0,0x35,0x53,0x90,0x61,0xa2,0xc4,0x07}
 	卦信息，卦五行3位，应3位，世3位，顺逆1位，
 	如乾卦，五行为金0，世位置1爻，应4爻，阳顺1 最后值为 000 100 001 1 = ox0043
  */
-func ParseChongGuaDesc(upGuaNum,downGuanNum int){
-	var desc = ChongGuaDesc[upGuaNum-1][downGuanNum-1]
-	// 解析顺逆
-	var isShun = desc & 0x01
+func ParseChongGuaDesc(gua ChongGua) *ChongGua{
+	upGua := gua.UpGua
+	downGua := gua.DownGua
+
+	var desc = ChongGuaDesc[upGua.GuaNum-1][downGua.GuaNum-1]
 	// 解析世位置
 	var shiPos = desc>>1 & 0x07
 	// 解析应位置
 	var yingPos = desc>>4 & 0x7
 	// 解析五行属性
 	var wuxing = desc>>7 & 0x7
-
-	fmt.Println("是否顺:"+common.IntToStr(isShun))
-	fmt.Println("世位置:"+common.IntToStr(shiPos))
-	fmt.Println("应位置:"+common.IntToStr(yingPos))
-	fmt.Println("五行:"+WuxingSheng[wuxing])
+	if shiPos > 3{
+		upGua.Yaos[shiPos-4].IsShi = true
+	}else{
+		downGua.Yaos[shiPos-1].IsShi = true
+	}
+	if yingPos > 3{
+		upGua.Yaos[shiPos-4].IsYing = true
+	}else{
+		upGua.Yaos[shiPos].IsYing = true
+	}
+	gua.Wuxing = wuxing
+	gua.WuXingName = WuxingSheng[wuxing]
+	return &gua
 }
 
-func ParseDanGuaDesc(isUp bool,downGuaNum int){
+func ParseDanGuaDesc(isUp bool,guaNum int) *Gua{
+	gua := Gua{GuaNum:guaNum,Name:BaguaNames[guaNum-1]}
 	var desc int
 	if isUp{
-		desc = DanUpGuaDesc[downGuaNum-1]
+		desc = DanUpGuaDesc[guaNum-1]
 	}else{
-		desc = DanDownGuaDesc[downGuaNum-1]
+		desc = DanDownGuaDesc[guaNum-1]
 	}
-
 
 	var dizhi = desc & 0xf
 	var yaoxiang = desc>>4 & 0x7
 	var isShun = desc>>7 & 0x1
-	fmt.Println("是否顺:"+common.IntToStr(isShun))
-	fmt.Println("地支:"+Dizhis[dizhi])
 	var i uint
+	var yaos []Yao
 	for i = 0; i < 3; i++{
+		yao := Yao{DiZhi:dizhi,DizhiName:Dizhis[dizhi]}
 		if (yaoxiang>>(2-i) & 0x1) == 0 {
-			fmt.Println("- -")
+			yao.Prop = 0
+			yao.Xiang = "- -"
 		}else{
-			fmt.Println("---")
+			yao.Prop = 1
+			yao.Xiang = "---"
+		}
+		if isShun == 1{
+			dizhi += 2
+			if dizhi >= 12 {
+				dizhi = dizhi%12
+			}
+		}
+		if isShun == 0{
+			dizhi -= 2
+			if dizhi < 0{
+				dizhi += 12
+			}
+		}
+		yaos = append(yaos, yao)
+	}
+	gua.Yaos = yaos
+	return &gua
+}
+
+func (this *Gua)String()string{
+	var buf bytes.Buffer
+	buf.Write([]byte(this.Name))
+	for i := 0; i < 3; i++{
+		buf.Write([]byte(this.Yaos[i].String()))
+		buf.WriteByte('\n')
+	}
+	buf.WriteByte('\n')
+	return buf.String()
+}
+
+func (this *Yao)String()string{
+	var buf bytes.Buffer
+	buf.WriteString(this.Xiang)
+	if this.Prop == 1{
+		if this.IsDong{
+			buf.WriteString("  x")
+		}else{
+			buf.WriteString("  ﹑")
+		}
+	}else{
+		if this.IsDong{
+			buf.WriteString("  o")
+		}else{
+			buf.WriteString(" ﹑﹑")
 		}
 	}
+	buf.WriteByte('\t')
+	buf.WriteString("  "+this.LiuQinName)
+	buf.WriteString("  "+this.DizhiName)
+	if this.IsShi {
+		buf.WriteString("  世")
+	}
+	if this.IsYing {
+		buf.WriteString("  应")
+	}
+	return buf.String()
+}
+
+func (this *ChongGua)String()string{
+	return this.UpGua.String()+this.DownGua.String()
 }
 
 

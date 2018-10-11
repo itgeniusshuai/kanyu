@@ -31,10 +31,11 @@ func GetChongGua(upNum, downNum int) *ChongGua{
 	upGuaNum := GetGuaByNum(upNum)
 	downGuaNum := GetGuaByNum(downNum)
 	// 获取上挂
-	upGua := GetDanGuaByGuaNum(upGuaNum)
-	downGua := GetDanGuaByGuaNum(downGuaNum)
+	upGua := GetDanGuaByGuaNum(upGuaNum,true)
+	downGua := GetDanGuaByGuaNum(downGuaNum,false)
 	cGua.UpGua = *upGua
 	cGua.DownGua = *downGua
+	ParseChongGuaDesc(cGua)
 	// 获取下挂
 	return &cGua
 }
@@ -46,9 +47,8 @@ func GetFinalGua(upNum,downNum int) *FinalGua{
 	return &f
 }
 
-func GetDanGuaByGuaNum(guaNum int) *Gua{
-	gua := Gua{Name:BaguaNames[GetGuaByNum(guaNum)]}
-	return &gua
+func GetDanGuaByGuaNum(guaNum int, isUp bool) *Gua{
+	return ParseDanGuaDesc(isUp,guaNum)
 }
 
 func GetGuaByNum(num int) int{

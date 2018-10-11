@@ -2,17 +2,18 @@ package liuyao
 
 
 type Gua struct{
-	Yao1 Yao
-	Yao2 Yao
-	Yao3 Yao
+	Yaos []Yao
 
 	Name string
+	GuaNum int
 }
 
 type ChongGua struct{
 	UpGua Gua
 	DownGua Gua
 	Name string
+	WuXingName string
+	Wuxing int
 }
 
 type FinalGua struct{
@@ -26,6 +27,10 @@ type Yao struct{
 	IsYing bool
 	IsDong bool
 
-	DiZhi byte
-	LiuQin byte
+	DiZhi int
+	LiuQin int
+
+	Xiang string
+	DizhiName string
+	LiuQinName string
 }
