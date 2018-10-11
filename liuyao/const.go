@@ -1,4 +1,10 @@
 package liuyao
+
+import (
+	"fmt"
+	"github.com/itgeniusshuai/go_common/common"
+)
+
 const(
 	YIN  = 0
 	YANG = 1
@@ -73,8 +79,62 @@ var GuaWuxing = []int{0,0,3,2,2,1,4,4}
  */
 var ChongGuaDesc = [][]int{{0x0043},{},{},{},{},{},{},{}}
 /**
-	初支地支4位
+	初支爻象三位 地支4位,顺逆1
+	如乾 1	111 0000  0xf 0
+	兑   0	011 0101 0x35
+	离 	0	101 0011   0x53
+	震 	1	001 0000   0x90
+	巽 	0	110 0001  0x61
+	坎 	1	010 0010  0xa2
+	艮 	1	100 0100  0xc4
+	坤 	0	000 0111  0x0e
  */
-var DanUpGuaDesc = []int{}
-var DanDownGuaDesc = []int{}
+var DanUpGuaDesc = []int{0xf6,0x3b,0x59,0x96,0x67,0xa8,0xca,0x01}
+var DanDownGuaDesc = []int{0xf0,0x35,0x53,0x90,0x61,0xa2,0xc4,0x07}
+
+/**
+	卦信息，卦五行3位，应3位，世3位，顺逆1位，
+	如乾卦，五行为金0，世位置1爻，应4爻，阳顺1 最后值为 000 100 001 1 = ox0043
+ */
+func ParseChongGuaDesc(upGuaNum,downGuanNum int){
+	var desc = ChongGuaDesc[upGuaNum-1][downGuanNum-1]
+	// 解析顺逆
+	var isShun = desc & 0x01
+	// 解析世位置
+	var shiPos = desc>>1 & 0x07
+	// 解析应位置
+	var yingPos = desc>>4 & 0x7
+	// 解析五行属性
+	var wuxing = desc>>7 & 0x7
+
+	fmt.Println("是否顺:"+common.IntToStr(isShun))
+	fmt.Println("世位置:"+common.IntToStr(shiPos))
+	fmt.Println("应位置:"+common.IntToStr(yingPos))
+	fmt.Println("五行:"+WuxingSheng[wuxing])
+}
+
+func ParseDanGuaDesc(isUp bool,downGuaNum int){
+	var desc int
+	if isUp{
+		desc = DanUpGuaDesc[downGuaNum-1]
+	}else{
+		desc = DanDownGuaDesc[downGuaNum-1]
+	}
+
+
+	var dizhi = desc & 0xf
+	var yaoxiang = desc>>4 & 0x7
+	var isShun = desc>>7 & 0x1
+	fmt.Println("是否顺:"+common.IntToStr(isShun))
+	fmt.Println("地支:"+Dizhis[dizhi])
+	var i uint
+	for i = 0; i < 3; i++{
+		if (yaoxiang>>(2-i) & 0x1) == 0 {
+			fmt.Println("- -")
+		}else{
+			fmt.Println("---")
+		}
+	}
+}
+
 
