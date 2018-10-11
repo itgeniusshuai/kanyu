@@ -115,14 +115,14 @@ func ParseChongGuaDesc(gua ChongGua) *ChongGua{
 	// 解析五行属性
 	var wuxing = desc>>8 & 0xf
 	if shiPos > 3{
-		upGua.Yaos[shiPos-4].IsShi = true
+		upGua.Yaos[2-(shiPos-4)].IsShi = true
 	}else{
-		downGua.Yaos[shiPos-1].IsShi = true
+		downGua.Yaos[2-(shiPos-1)].IsShi = true
 	}
 	if yingPos > 3{
-		upGua.Yaos[yingPos-4].IsYing = true
+		upGua.Yaos[2-(yingPos-4)].IsYing = true
 	}else{
-		downGua.Yaos[yingPos-1].IsYing = true
+		downGua.Yaos[2-(yingPos-1)].IsYing = true
 	}
 	gua.Wuxing = wuxing
 	gua.WuXingName = WuxingSheng[wuxing]
