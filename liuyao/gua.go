@@ -14,6 +14,7 @@ type ChongGua struct{
 	Name string
 	WuXingName string
 	Wuxing int
+	DongYaoNums []int
 }
 
 type FinalGua struct{

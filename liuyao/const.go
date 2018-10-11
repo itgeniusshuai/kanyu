@@ -74,15 +74,23 @@ var WuxingKe = []string{"木","火","土","金","水"}
 var GuaWuxing = []int{0,0,3,2,2,1,4,4}
 /**
 	卦信息，卦五行4位，应4位，世4位，
-	如乾卦，五行为金0，世位置1爻，应4爻，阳顺1 最后值为 0000 0100 0001  = ox0041
+	如乾卦，五行为金0，世位置1爻，应4爻，阳顺1 最后值为 0000 0110 0110  = ox0036
  */
-var ChongGuaDesc = [][]int{{0x0043},{},{},{},{},{},{},{}}
+var ChongGuaDesc = [][]int{{0x0036,0x452,0x363,0x241,0x041,0x336,0x052,0x063},
+							{0x425,0x036,0x114,0x263,0x214,0x041,0x063,0x052},
+							{0x425,0x036,0x114,0x263,0x214,0x041,0x000,0x000},
+							{0x425,0x036,0x114,0x263,0x214,0x041,0x000,0x000},
+							{0x425,0x036,0x114,0x263,0x214,0x041,0x000,0x000},
+							{0x425,0x036,0x114,0x263,0x214,0x041,0x000,0x000},
+							{0x425,0x036,0x114,0x263,0x214,0x041,0x000,0x000},
+							{0x425,0x036,0x114,0x263,0x214,0x041,0x000,0x000},
+							}
 /**
 	初支爻象三位 地支4位,顺逆1
-	如乾 1	111 0000  0xf 0
-	兑   0	011 0101 0x35
-	离 	0	101 0011   0x53
-	震 	1	001 0000   0x90
+	如乾 1	111 0000  0xf0
+	兑   0	011 0101  0x35
+	离 	0	101 0011  0x53
+	震 	1	001 0000  0x90
 	巽 	0	110 0001  0x61
 	坎 	1	010 0010  0xa2
 	艮 	1	100 0100  0xc4
@@ -93,7 +101,7 @@ var DanDownGuaDesc = []int{0xf0,0x35,0x53,0x90,0x61,0xa2,0xc4,0x07}
 
 /**
 	卦信息，卦五行3位，应3位，世3位，顺逆1位，
-	如乾卦，五行为金0，应位置4爻，世4爻， 最后值为 0000 0100 0001 = ox0041
+	如乾卦，五行为金0，应位置4爻，世1爻， 最后值为 0000 0100 0001 = ox0041
  */
 func ParseChongGuaDesc(gua ChongGua) *ChongGua{
 	upGua := gua.UpGua
@@ -112,12 +120,20 @@ func ParseChongGuaDesc(gua ChongGua) *ChongGua{
 		downGua.Yaos[shiPos-1].IsShi = true
 	}
 	if yingPos > 3{
-		upGua.Yaos[shiPos-4].IsYing = true
+		upGua.Yaos[yingPos-4].IsYing = true
 	}else{
-		upGua.Yaos[shiPos].IsYing = true
+		downGua.Yaos[yingPos-1].IsYing = true
 	}
 	gua.Wuxing = wuxing
 	gua.WuXingName = WuxingSheng[wuxing]
+	// 解析动爻
+	for _,e := range gua.DongYaoNums{
+		if e > 3{
+			gua.UpGua.Yaos[2-(e-4)].IsDong = true
+		}else{
+			gua.DownGua.Yaos[2-(e-1)].IsDong = true
+		}
+	}
 	return &gua
 }
 
@@ -134,10 +150,10 @@ func ParseDanGuaDesc(isUp bool,guaNum int) *Gua{
 	var yaoxiang = desc>>4 & 0x7
 	var isShun = desc>>7 & 0x1
 	var i uint
-	var yaos []Yao
+	var yaos []Yao = make([]Yao,3)
 	for i = 0; i < 3; i++{
 		yao := Yao{DiZhi:dizhi,DizhiName:Dizhis[dizhi]}
-		if (yaoxiang>>(2-i) & 0x1) == 0 {
+		if (yaoxiang>>i & 0x1) == 0 {
 			yao.Prop = 0
 			yao.Xiang = "- -"
 		}else{
@@ -156,7 +172,7 @@ func ParseDanGuaDesc(isUp bool,guaNum int) *Gua{
 				dizhi += 12
 			}
 		}
-		yaos = append(yaos, yao)
+		yaos[2-i] = yao
 	}
 	gua.Yaos = yaos
 	return &gua
@@ -164,7 +180,7 @@ func ParseDanGuaDesc(isUp bool,guaNum int) *Gua{
 
 func (this *Gua)String()string{
 	var buf bytes.Buffer
-	buf.Write([]byte(this.Name))
+	//buf.Write([]byte(this.Name))
 	for i := 0; i < 3; i++{
 		buf.Write([]byte(this.Yaos[i].String()))
 		buf.WriteByte('\n')
@@ -190,19 +206,20 @@ func (this *Yao)String()string{
 		}
 	}
 	buf.WriteByte('\t')
-	buf.WriteString("  "+this.LiuQinName)
-	buf.WriteString("  "+this.DizhiName)
+	buf.WriteString("\t"+this.LiuQinName)
+	buf.WriteString("\t"+this.DizhiName)
 	if this.IsShi {
-		buf.WriteString("  世")
+		buf.WriteString("\t世")
 	}
 	if this.IsYing {
-		buf.WriteString("  应")
+		buf.WriteString("\t应")
 	}
 	return buf.String()
 }
 
 func (this *ChongGua)String()string{
-	return this.UpGua.String()+this.DownGua.String()
+
+	return this.Name +"\n"+this.UpGua.String()+this.DownGua.String()
 }
 
 
