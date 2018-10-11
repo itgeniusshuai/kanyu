@@ -2,26 +2,11 @@ package liuyao
 
 import (
 	"../date"
+	"github.com/itgeniusshuai/go_common/common"
+	"fmt"
 )
 
-var baguaNames = []string{"乾","兑","离","震","巽","坎","艮","坤"}
-var chongGuaNames = [][]string{	{"乾为天","天泽履","天火同人","天雷无妄","天风姤","天水讼","天山遁","天地否"},
-							{"泽天夬","兑为泽","泽火革","泽雷随","泽风大过","泽水困","泽山咸","泽地萃"},
-							{"火天大有","火泽睽","离为火","火雷噬嗑","火风鼎","火水未既","火山旅","火地晋"},
-							{"雷天大壮","雷泽归妹","雷火丰","震","雷风恒","雷水解","雷山小过","雷地豫"},
-							{"风天小畜","风泽中孚","风火家人","风雷益","巽为风","风水涣","风山渐","风地观"},
-							{"水天需","水泽节","水火既济","水雷屯","水风井","坎为水","水山蹇","水地比"},
-							{"山天大畜","山泽损","山火贲","山雷颐","山风蛊","山水蒙","艮为山","山地剥"},
-							{"地天泰","地泽临","地火明夷","地雷覆","地风升","地水师","地山谦","坤为地"}}
-// 金0水1木2火3土4
-var wuxingSheng = []string{"金","水","木","火","土"}
-var wuxingKe = []string{"木","火","土","金","水"}
-var guaWuxing = []int{0,0,3,2,2,1,4,4}
-/**
-	卦信息，卦五行3位，世3位，应3位，顺逆1位，初支地支4位
 
- */
-var chongGuaDesc = [][]int{{},{},{},{},{},{},{},{}}
 // 取挂
 // 取动
 // 取卦支
@@ -44,7 +29,7 @@ func QiGuaByTime() *FinalGua{
 }
 
 func GetChongGua(upNum, downNum int) *ChongGua{
-	cGua := ChongGua{Name:chongGuaNames[upNum-1][downNum-1]}
+	cGua := ChongGua{Name:ChongGuaNames[upNum-1][downNum-1]}
 	upGuaNum := GetGuaByNum(upNum)
 	downGuaNum := GetGuaByNum(downNum)
 	// 获取上挂
@@ -64,7 +49,7 @@ func GetFinalGua(upNum,downNum int) *FinalGua{
 }
 
 func GetDanGuaByGuaNum(guaNum int) *Gua{
-	gua := Gua{Name:baguaNames[GetGuaByNum(guaNum)]}
+	gua := Gua{Name:BaguaNames[GetGuaByNum(guaNum)]}
 	return &gua
 }
 
@@ -82,4 +67,26 @@ func GetDongYaoNum(num int) int{
 	}
 	return num
 }
+
+/**
+	卦信息，卦五行3位，应3位，世3位，顺逆1位，
+	如乾卦，五行为金0，世位置1爻，应4爻，阳顺1 最后值为 000 100 001 1 = ox0043
+ */
+func ParseChongGuaDesc(upGuaNum,downGuanNum int){
+	var desc = ChongGuaDesc[upGuaNum-1][downGuanNum-1]
+	// 解析顺逆
+	var isShun = desc & 0x01
+	// 解析世位置
+	var shiPos = desc>>1 & 0x07
+	// 解析应位置
+	var yingPos = desc>>4 & 0x7
+	// 解析五行属性
+	var wuxing = desc>>7 & 0x7
+
+	fmt.Println("是否顺:"+common.IntToStr(isShun))
+	fmt.Println("世位置:"+common.IntToStr(shiPos))
+	fmt.Println("应位置:"+common.IntToStr(yingPos))
+	fmt.Println("五行:"+WuxingSheng[wuxing])
+}
+
 
