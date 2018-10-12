@@ -1,6 +1,7 @@
 package liuyao
 
 import "bytes"
+import "../date"
 
 type Gua struct{
 	Yaos []*Yao
@@ -21,6 +22,8 @@ type ChongGua struct{
 type FinalGua struct{
 	ZhuGua ChongGua
 	BianGua ChongGua
+
+	Lunar date.Lunar
 }
 
 type Yao struct{
@@ -39,6 +42,14 @@ type Yao struct{
 
 func (this *FinalGua)String()string{
 	var buf bytes.Buffer
+	// 时间
+	lunar := this.Lunar
+	buf.WriteString(lunar.GetLunarYearString()+"年")
+	buf.WriteByte('\t')
+	buf.WriteString(lunar.GetCyclicaMonth()+"月")
+	buf.WriteByte('\t')
+	buf.WriteString(lunar.GetCyclicaDay()+"日")
+	buf.WriteByte('\n')
 	// 主卦名称 +变卦名称
 	zhuGua := this.ZhuGua
 	bianGua := this.BianGua

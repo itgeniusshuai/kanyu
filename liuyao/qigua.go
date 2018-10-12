@@ -60,8 +60,11 @@ func GetFinalGua(upNum,downNum int) *FinalGua{
 	chongGua := GetChongGua(upNum,downNum,nil,0,true)
 	f.ZhuGua = *chongGua
 	// 变卦
-	bianGua := GetBianGua(*chongGua)
-	f.BianGua = *bianGua
+	if chongGua.DongYaoNums !=nil{
+		bianGua := GetBianGua(*chongGua)
+		f.BianGua = *bianGua
+	}
+	f.Lunar = date.GetLunar()
 	return &f
 }
 
