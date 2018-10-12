@@ -1,7 +1,6 @@
 package liuyao
 
 import (
-	"bytes"
 )
 
 const(
@@ -64,7 +63,7 @@ var BaguaNames = []string{"乾","兑","离","震","巽","坎","艮","坤"}
 var ChongGuaNames = [][]string{	{"乾为天","天泽履","天火同人","天雷无妄","天风姤","天水讼","天山遁","天地否"},
 								{"泽天夬","兑为泽","泽火革","泽雷随","泽风大过","泽水困","泽山咸","泽地萃"},
 								{"火天大有","火泽睽","离为火","火雷噬嗑","火风鼎","火水未既","火山旅","火地晋"},
-								{"雷天大壮","雷泽归妹","雷火丰","震","雷风恒","雷水解","雷山小过","雷地豫"},
+								{"雷天大壮","雷泽归妹","雷火丰","震为雷","雷风恒","雷水解","雷山小过","雷地豫"},
 								{"风天小畜","风泽中孚","风火家人","风雷益","巽为风","风水涣","风山渐","风地观"},
 								{"水天需","水泽节","水火既济","水雷屯","水风井","坎为水","水山蹇","水地比"},
 								{"山天大畜","山泽损","山火贲","山雷颐","山风蛊","山水蒙","艮为山","山地剥"},
@@ -87,7 +86,7 @@ var ChongGuaDesc = [][]int{{0x0036,0x452,0x363,0x241,0x041,0x336,0x052,0x063},
 							{0x463,0x452,0x114,0x441,0x214,0x163,0x025,0x436},
 							}
 /**
-	初支爻象三位 地支4位,顺逆1
+	顺逆1,初支爻象三位 地支4位
 	如乾 1	111 0000  0xf0
 	兑   0	011 0101  0x35
 	离 	0	101 0011  0x53
@@ -104,7 +103,7 @@ var DanDownGuaDesc = []int{0xf0,0x35,0x53,0x90,0x61,0xa2,0xc4,0x07}
 	卦信息，卦五行3位，应3位，世3位，顺逆1位，
 	如乾卦，五行为金0，应位置4爻，世1爻， 最后值为 0000 0100 0001 = ox0041
  */
-func ParseChongGuaDesc(gua ChongGua) *ChongGua{
+func ParseChongGuaDesc(gua ChongGua,baseWuxing int, isZhu bool) *ChongGua{
 	upGua := gua.UpGua
 	downGua := gua.DownGua
 
@@ -128,20 +127,25 @@ func ParseChongGuaDesc(gua ChongGua) *ChongGua{
 	gua.Wuxing = wuxing
 	gua.WuXingName = WuxingSheng[wuxing]
 	// 解析动爻
-	for _,e := range gua.DongYaoNums{
-		if e > 3{
-			gua.UpGua.Yaos[2-(e-4)].IsDong = true
-		}else{
-			gua.DownGua.Yaos[2-(e-1)].IsDong = true
+	if isZhu{
+		for _,e := range gua.DongYaoNums{
+			if e > 3{
+				gua.UpGua.Yaos[2-(e-4)].IsDong = true
+			}else{
+				gua.DownGua.Yaos[2-(e-1)].IsDong = true
+			}
 		}
 	}
 	// 解析六亲
+	if isZhu{
+		baseWuxing = wuxing
+	}
 	for _,yao := range upGua.Yaos{
-		_,liuQinName := ParseLiuQin(yao.DiZhi,wuxing)
+		_,liuQinName := ParseLiuQin(yao.DiZhi,baseWuxing)
 		yao.LiuQinName = liuQinName
 	}
 	for _,yao := range downGua.Yaos{
-		_,liuQinName := ParseLiuQin(yao.DiZhi,wuxing)
+		_,liuQinName := ParseLiuQin(yao.DiZhi,baseWuxing)
 		yao.LiuQinName = liuQinName
 	}
 	return &gua
@@ -188,49 +192,7 @@ func ParseDanGuaDesc(isUp bool,guaNum int) *Gua{
 	return &gua
 }
 
-func (this *Gua)String()string{
-	var buf bytes.Buffer
-	//buf.Write([]byte(this.Name))
-	for i := 0; i < 3; i++{
-		buf.Write([]byte(this.Yaos[i].String()))
-		buf.WriteByte('\n')
-	}
-	buf.WriteByte('\n')
-	return buf.String()
-}
 
-func (this *Yao)String()string{
-	var buf bytes.Buffer
-	buf.WriteString(this.Xiang)
-	if this.Prop == 1{
-		if this.IsDong{
-			buf.WriteString("  x")
-		}else{
-			buf.WriteString("  ﹑")
-		}
-	}else{
-		if this.IsDong{
-			buf.WriteString("  o")
-		}else{
-			buf.WriteString(" ﹑﹑")
-		}
-	}
-	buf.WriteByte('\t')
-	buf.WriteString("\t"+this.LiuQinName)
-	buf.WriteString(this.DizhiName+WuxingSheng[DizhiWuxings[this.DiZhi]])
-	if this.IsShi {
-		buf.WriteString("\t世")
-	}
-	if this.IsYing {
-		buf.WriteString("\t应")
-	}
-	return buf.String()
-}
-
-func (this *ChongGua)String()string{
-
-	return this.Name +"\n"+this.UpGua.String()+this.DownGua.String()
-}
 
 
 func ParseLiuQin(dizhiNum int, baseWuxingNum int) (int,string){
@@ -242,14 +204,39 @@ func ParseLiuQin(dizhiNum int, baseWuxingNum int) (int,string){
 	return chazhi,LiuQins[chazhi]
 }
 
-func GetBianGua(zhuGua ChongGua)*ChongGua{
-	bianGua := ChongGua{}
-	// 获取爻象
-	bianGua.UpGua = zhuGua.UpGua
-	bianGua.DownGua = zhuGua.DownGua
-	for _,e := range bianGua.UpGua.Yaos{
 
+
+func GetGuaNumByYaoXiang(zhuGua ChongGua)(int,int){
+	var upBianGuaNum = 1;
+	var downBianGuaNum = 1;
+	upGua := zhuGua.UpGua
+	downGua := zhuGua.DownGua
+	upGuaXiang := 0
+	downGuaXiang := 0
+	var i uint
+	for i = 0; i < 3; i++{
+		e := upGua.Yaos[i]
+		// 阳爻
+		if (e.Prop == 1 && !e.IsDong) || (e.Prop == 0 && e.IsDong){
+			upGuaXiang = upGuaXiang | (0x1<<(2-i))
+		}
 	}
-	return nil
+	for i = 0; i < 3; i++{
+		e := downGua.Yaos[i]
+		// 阳爻
+		if (e.Prop == 1 && !e.IsDong) || (e.Prop == 0 && e.IsDong){
+			downGuaXiang = downGuaXiang | (0x1<<(2-i))
+		}
+	}
+	for j,e1 := range DanUpGuaDesc{
+		guaXiang := (e1 >> 4)& 0x07
+		if upGuaXiang == guaXiang{
+			upBianGuaNum = j+1
+		}
+		if downGuaXiang == guaXiang{
+			downBianGuaNum = j +1
+		}
+	}
+	return upBianGuaNum,downBianGuaNum;
 }
 

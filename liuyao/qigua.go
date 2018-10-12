@@ -27,7 +27,7 @@ func QiGuaByTime() *FinalGua{
 	return GetFinalGua(upNum,downNum)
 }
 
-func GetChongGua(upNum, downNum int,dongYaos []int) *ChongGua{
+func GetChongGua(upNum, downNum int,dongYaos []int,baseWuxing int, isZhu bool) *ChongGua{
 	cGua := ChongGua{Name:ChongGuaNames[upNum-1][downNum-1]}
 	upGuaNum := GetGuaByNum(upNum)
 	downGuaNum := GetGuaByNum(downNum)
@@ -36,24 +36,32 @@ func GetChongGua(upNum, downNum int,dongYaos []int) *ChongGua{
 	downGua := GetDanGuaByGuaNum(downGuaNum,false)
 	cGua.UpGua = *upGua
 	cGua.DownGua = *downGua
-	if dongYaos == nil{
-		dongyao := (upGuaNum+downNum)%6
-		if dongyao == 0{
-			dongyao = 6
+	if isZhu{
+		if dongYaos == nil{
+			dongyao := (upGuaNum+downNum)%6
+			if dongyao == 0{
+				dongyao = 6
+			}
+			dongYaos = []int{dongyao}
 		}
-		dongYaos = []int{dongyao}
 	}
 	cGua.DongYaoNums = dongYaos
-	ParseChongGuaDesc(cGua)
-	// 获取下挂
-	return &cGua
+	return ParseChongGuaDesc(cGua,baseWuxing,isZhu)
+}
+
+func GetBianGua(zhuGua ChongGua)*ChongGua{
+	upGuaNum,dowGuaNum := GetGuaNumByYaoXiang(zhuGua)
+	bianGua := GetChongGua(upGuaNum,dowGuaNum,nil,zhuGua.Wuxing,false)
+	return bianGua
 }
 
 func GetFinalGua(upNum,downNum int) *FinalGua{
 	f := FinalGua{}
-	chongGua := GetChongGua(upNum,downNum,nil)
+	chongGua := GetChongGua(upNum,downNum,nil,0,true)
 	f.ZhuGua = *chongGua
 	// 变卦
+	bianGua := GetBianGua(*chongGua)
+	f.BianGua = *bianGua
 	return &f
 }
 
