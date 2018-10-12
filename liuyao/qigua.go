@@ -23,6 +23,7 @@ func QiGuaByTime() *FinalGua{
 	var upNum = y + m + d
 	var downNum = y + m + d + h
 
+
 	return GetFinalGua(upNum,downNum)
 }
 
@@ -52,6 +53,7 @@ func GetFinalGua(upNum,downNum int) *FinalGua{
 	f := FinalGua{}
 	chongGua := GetChongGua(upNum,downNum,nil)
 	f.ZhuGua = *chongGua
+	// 变卦
 	return &f
 }
 
