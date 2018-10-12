@@ -4,7 +4,6 @@ import (
 	"github.com/itgeniusshuai/go_common/common"
 	"regexp"
 	"time"
-	"fmt"
 )
 
 type Lunar struct {
@@ -841,24 +840,6 @@ var lunarInfo = []int{
     func GetLunar() Lunar{
     	l := Lunar{}
     	l.init(time.Now().Unix()*1000)
-    	fmt.Println(l.solarYear)
-    	fmt.Println(l.solarMonth)
-    	fmt.Println(l.solarDay)
-    	fmt.Println(l.GetCyclicaYear())
-    	fmt.Println(l.GetCyclicaMonth())
-    	fmt.Println(l.GetCyclicaDay())
-    	fmt.Println(l.GetCyclicalDateString())
-    	fmt.Println(l.GetLunarMonthString())
-    	fmt.Println(l.GetLunarYearString())
-    	fmt.Println(l.GetLunarDateString())
-    	fmt.Println(l.GetDeqiY())
-    	fmt.Println(l.GetDeqiM())
-    	fmt.Println(l.GetDeqiD())
-    	fmt.Println(l.GetCyclicaD())
-    	fmt.Println(l.GetCyclicaM())
-    	fmt.Println(l.GetLunarDay())
-    	fmt.Println(l.GetLunarMonth())
-    	fmt.Println(l.GetLunarYear())
     	return l
 	}
 
